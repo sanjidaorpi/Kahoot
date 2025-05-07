@@ -4,6 +4,8 @@
  */
 package kahoot;
 
+import kahoot.game_logic.QuestionSet;
+
 /**
  *
  * @author Sanjida Orpi and Jenesis Blancaflor
@@ -14,7 +16,9 @@ public class Kahoot {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        // load in questions from file
+        new QuestionSet();
+        
     }
     
 }

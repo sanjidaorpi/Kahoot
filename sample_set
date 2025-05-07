@@ -1,0 +1,17 @@
+[
+  {
+	“question”: “How many whiskers does the average cat have on each side of its face?”,
+	“choices”: [1, 3, 12, 5,007],
+	“answer”: 2
+  },
+  {
+	“question”: “When does a cat purr?”,
+	“choices”: [“When it cares for its kittens”, “When it needs comfort”, “When it feels content”, “All of the above”],
+	“answer”: 3
+  },
+  {
+	“question”: “What is the average number of kittens in a litter”,
+	“choices”: [“1 to 2”, “3 to 5”, “8 to 10”, “12 to 14”],
+	“answer”: 1
+  }
+]
