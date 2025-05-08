@@ -23,28 +23,17 @@ import java.io.IOException;
 
 public class QuestionSet {
     
+    private int current_question = 1;
     private boolean file_loaded;
+    JSONArray answer_set;
+    int rounds;
     
     public QuestionSet() {
-        Integer rounds = 0;
-        String question;
-        JSONArray choices;
-        long answer;
         
         try {
             Object file_object = new JSONParser().parse(new FileReader("sample_set.json"));
             JSONArray answer_set = (JSONArray)file_object;
             rounds = answer_set.size();
-            System.out.println("Game rounds:" + rounds);
-            
-            // question set made where each has 4 choices and 1 answer
-            for (Object q : answer_set) {
-                JSONObject q_obj = (JSONObject) q;
-                question = (String)q_obj.get("question");
-                choices = (JSONArray)q_obj.get("choices");
-                answer = (long)q_obj.get("answer");
-            }
-            
             file_loaded = true;
         
         } catch (IOException | ParseException e) {
@@ -54,8 +43,30 @@ public class QuestionSet {
         
     }
     
+    public void changeRound() {
+        current_question += 1;
+    }
+    
     public boolean isCreated() {
         return file_loaded;
     }
     
+    public String getQuestion() {
+        JSONObject q_obj = (JSONObject) answer_set.get(current_question);
+        String question = (String)q_obj.get("question");
+        return question;
+    }
+    
+    public JSONArray getChoices() {
+        JSONObject q_obj = (JSONObject) answer_set.get(current_question);
+        JSONArray choices = (JSONArray)q_obj.get("choices");
+        return choices;
+    }
+    
+    public long getAnswer() {
+        JSONObject q_obj = (JSONObject) answer_set.get(current_question);
+        long answer = (long)q_obj.get("answer");
+        return answer;
+    }
+
 }
