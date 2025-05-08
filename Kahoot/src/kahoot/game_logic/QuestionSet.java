@@ -4,15 +4,15 @@
  */
 package kahoot.game_logic;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
 import java.io.IOException;
 
-// add the jar file for the json imports: https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar
-// add to libraries
+// add the jar file for the json imports to libraries:
+// https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar
+
 
 /**
  *
@@ -22,8 +22,14 @@ import java.io.IOException;
 // Take in a file and produce a question and answer set to be used for a game
 
 public class QuestionSet {
+    
+    private boolean file_loaded;
+    
     public QuestionSet() {
         Integer rounds = 0;
+        String question;
+        JSONArray choices;
+        long answer;
         
         try {
             Object file_object = new JSONParser().parse(new FileReader("sample_set.json"));
@@ -34,17 +40,22 @@ public class QuestionSet {
             // question set made where each has 4 choices and 1 answer
             for (Object q : answer_set) {
                 JSONObject q_obj = (JSONObject) q;
-                String question = (String)q_obj.get("question");
-                JSONArray choices = (JSONArray)q_obj.get("choices");
-                long answer = (long)q_obj.get("answer");
+                question = (String)q_obj.get("question");
+                choices = (JSONArray)q_obj.get("choices");
+                answer = (long)q_obj.get("answer");
             }
             
+            file_loaded = true;
         
         } catch (IOException | ParseException e) {
-           e.printStackTrace();
+            file_loaded = false;
+            e.printStackTrace();
         }
         
     }
     
-
+    public boolean isCreated() {
+        return file_loaded;
+    }
+    
 }
