@@ -25,7 +25,11 @@ public class Server {
      */
     
     static ArrayList<ProcessConnection> clients = new ArrayList<>();
+    static int game_pin;
     
+    public Server(int game_pin) {
+        Server.game_pin = game_pin;
+    }
     
     public static void main(String[] args) {
         // TODO code application logic here
@@ -35,8 +39,22 @@ public class Server {
             while(true){
                 
                 Socket s = ss.accept();
+                
+                Scanner sin = new Scanner(s.getInputStream());
+                PrintStream sout = new PrintStream(s.getOutputStream());
+
+                String username = sin.nextLine().trim();
+                String game_pin = sin.nextLine().trim();
+
+                if (!game_pin.equals(Integer.toString(Server.game_pin))) {
+                    sout.println("Invalid game PIN");
+                    s.close();
+                    continue;
+                }
+
                 // restricting more than 4 players from joining the game
                 synchronized (clients) {
+                    
                     if (clients.size() >= 4) {
                         System.out.println("Game is full");
                         s.close();
@@ -44,7 +62,7 @@ public class Server {
                     }
 
                     int num_players = clients.size() + 1;
-                    ProcessConnection connection = new ProcessConnection(s, num_players);
+                    ProcessConnection connection = new ProcessConnection(s, num_players, username, sout, sin);
                     clients.add(connection);
                     connection.start();
                 }
@@ -62,41 +80,30 @@ class ProcessConnection extends Thread{
     int i;
     String username;
     PrintStream sout;
-    ProcessConnection(Socket news, int newi){s = news; i = newi;}
-    
-    public void run(){
-        try {
-            Scanner sin = new Scanner(s.getInputStream());
-            sout = new PrintStream(s.getOutputStream());
-            if (sin.hasNextLine()) {
-                username = sin.nextLine().trim();
-            }
-            
-            if (clients.size() < 4) {
-                clients.add(this);
-                System.out.println(username+" connected");
-            }
-            
-            
-            while (s.isConnected() && sin.hasNextLine()) {
-                String message = sin.nextLine();
-                for (ProcessConnection client : clients) {
-                    client.sout.println(username + ": " + message);
-                }
-            }
+    Scanner sin;
 
-        } catch (IOException ex) {
-            System.out.println("IOException in client "+i+": "+ex.toString());
-            
-        } finally {
-            
-            try {
-                s.close();
-                
-            } catch (IOException ignored) {
+    ProcessConnection(Socket s, int i, String username, PrintStream sout, Scanner sin) {
+        this.s = s;
+        this.i = i;
+        this.username = username;
+        this.sout = sout;
+        this.sin = sin;
+    }
+    
+    @Override
+    public void run(){
+        System.out.println(username + " connected");
+        while (s.isConnected() && sin.hasNextLine()) {
+            String message = sin.nextLine();
+            for (ProcessConnection client : clients) {
+                client.sout.println(username + ": " + message);
             }
-            
-            clients.remove(this);
         }
+        try {
+            s.close();
+            
+        } catch (IOException ignored) {
+        }
+        clients.remove(this);
     }
 }

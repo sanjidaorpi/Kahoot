@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.util.Random;
 import static kahoot.Kahoot.game_state;
+import kahoot.server_logic.Server;
 
 /**
  *
@@ -17,7 +18,7 @@ import static kahoot.Kahoot.game_state;
  */
 public class Kahoot {
     
-    static Integer game_pin;
+    static int game_pin;
             
     // game states: setup > waiting > play > gameover
     static String game_state = "setup";
@@ -44,20 +45,20 @@ public class Kahoot {
             set = new QuestionSet();
         }
         
-        // set up waiting toom page UI
+        // set up waiting room page UI and start server
         game_state = "waiting";
+        Server server = new Server(game_pin); // this should take in game_pin
+        
         
         if ( game_state.equals("waiting")) {
             WaitingRoom page1 = new WaitingRoom();
             page1.setVisible(true);
             
         } else if (game_state.equals("play")) {
-            WaitingRoom page2 = new Round();
-            page2.setVisible(true);
+            
+            
             
         }
-        
-        
         
         
         

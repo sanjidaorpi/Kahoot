@@ -39,7 +39,7 @@ public class Client {
     static  JButton send;
     
     // For connection
-    static String server = "";
+    static String game_pin = "";
     static String username = "";
     static Socket s;
     static Scanner sin;
@@ -53,23 +53,24 @@ public class Client {
         jf.setSize(600, 500);
         jf.setLayout(new FlowLayout());
         
-        panel1 = new JPanel(new FlowLayout());
-        serverLabel = new JLabel("Server Name:");
-        server_input = new JTextField(10);
-        panel1.add(serverLabel);
-        panel1.add(server_input);
-        
         panel2 = new JPanel(new FlowLayout());
         userLabel = new JLabel("Username:");
         user_input = new JTextField(10);
         panel2.add(userLabel);
         panel2.add(user_input);
         
+        panel1 = new JPanel(new FlowLayout());
+        serverLabel = new JLabel("Game PIN:");
+        server_input = new JTextField(10);
+        panel1.add(serverLabel);
+        panel1.add(server_input);
+        
         connect = new JButton("Connect");
         connect.addActionListener(new ButtonListener());
         
-        jf.add(panel1);
+        
         jf.add(panel2);
+        jf.add(panel1);
         jf.add(connect);
         jf.setVisible(true);
     }
@@ -109,15 +110,16 @@ public class Client {
         public void actionPerformed(ActionEvent e) {
             
             if (e.getSource() == connect) {
-                server = server_input.getText();
                 username = user_input.getText();
+                game_pin = server_input.getText();
                 changePage();
                 
                 try {
-                    s = new Socket(server, 5190);
+                    s = new Socket("localhost", 5190);
                     sin = new Scanner(s.getInputStream());
                     sout = new PrintStream(s.getOutputStream());
                     sout.println(username);
+                    sout.println(game_pin);
                     
                 } catch (IOException ex) {
                     System.out.println("Exception thrown: "+ex.toString());
