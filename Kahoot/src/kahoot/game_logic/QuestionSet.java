@@ -23,16 +23,16 @@ import java.io.IOException;
 
 public class QuestionSet {
     
-    private int current_question = 1;
-    private boolean file_loaded;
+    public int current_question = 0;
+    public boolean file_loaded;
     JSONArray answer_set;
-    int rounds;
+    public int rounds;
     
     public QuestionSet() {
         
         try {
             Object file_object = new JSONParser().parse(new FileReader("sample_set.json"));
-            JSONArray answer_set = (JSONArray)file_object;
+            answer_set = (JSONArray)file_object;
             rounds = answer_set.size();
             file_loaded = true;
         
