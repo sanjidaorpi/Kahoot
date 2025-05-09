@@ -20,7 +20,9 @@ import org.json.simple.JSONArray;
 // for the server file 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
@@ -44,11 +46,7 @@ public class Kahoot {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-
-        // make game pin for players, random 4 digit number
-        Random r = new Random();
-        game_pin = r.nextInt(9000) + 1000;
+    public static void main(String[] args) throws UnknownHostException {
 
         // keep trying to create question set
         while (set.isCreated() == false) {
@@ -130,25 +128,73 @@ public class Kahoot {
 
 class WaitingRoom extends JPanel {
 
-    public WaitingRoom() {
+    public WaitingRoom() throws UnknownHostException {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Color p = Color.decode("#46178f");
         setBackground(p);
+        
+        JPanel top_panel = new JPanel();
+        top_panel.setLayout(new BoxLayout(top_panel, BoxLayout.PAGE_AXIS));
+        top_panel.setPreferredSize(new Dimension(500, 10));
+        top_panel.setOpaque(false);
+        
+        InetAddress localHost = InetAddress.getLocalHost();
+        JLabel instruction = new JLabel("Please open your browser and go to: " + localHost.getHostAddress() + ":5190/", SwingConstants.CENTER);
+        instruction.setFont(new Font("SansSerif", Font.BOLD, 25));
+        instruction.setForeground(Color.WHITE);
+        instruction.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
 
-        JLabel title = new JLabel("Java Kahoot", SwingConstants.CENTER);
+        JLabel game_pin = new JLabel("Game PIN: ", SwingConstants.CENTER);
+        game_pin.setFont(new Font("SansSerif", Font.BOLD, 25));
+        game_pin.setForeground(Color.WHITE);
+        game_pin.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel pin = new JLabel("1234", SwingConstants.CENTER);
+        pin.setFont(new Font("SansSerif", Font.BOLD, 35));
+        pin.setForeground(Color.WHITE);
+        pin.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        top_panel.add(instruction);
+        top_panel.add(game_pin);
+        top_panel.add(pin);
+        
+        JLabel title = new JLabel("Kahoot!", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 48));
         title.setForeground(Color.WHITE);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        JPanel middle_panel = new JPanel();
+        middle_panel.setLayout(new BoxLayout(middle_panel, BoxLayout.X_AXIS));
+        middle_panel.setOpaque(false);
+
         JButton start = new JButton("Start");
+        start.setSize(new Dimension(200, 200));
+        middle_panel.setPreferredSize(new Dimension(500, 100));
+        
         start.setActionCommand("start");
         start.addActionListener(new ButtonListener()); 
         start.setFont(new Font("SansSerif", Font.BOLD, 28));
         start.setAlignmentX(Component.CENTER_ALIGNMENT);
         start.setAlignmentY(Component.CENTER_ALIGNMENT);
-
-        add(title);
-        add(start); 
+        
+        middle_panel.add(title);
+        middle_panel.add(Box.createRigidArea(new Dimension(20, 0)));
+        middle_panel.add(start);
+        
+        JLabel message = new JLabel("Waiting for players...", SwingConstants.CENTER);
+        message.setOpaque(true);
+        message.setBackground(Color.decode("#25076b"));
+        message.setFont(new Font("SansSerif", Font.BOLD, 35));
+        message.setForeground(Color.WHITE);
+        message.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Border border = message.getBorder();
+        Border margin = new EmptyBorder(10,10,10,10);
+        message.setBorder(new CompoundBorder(border, margin));
+        
+        add(top_panel);
+        add(middle_panel);
+        add(message);
+        
     }
     
 }
@@ -160,8 +206,6 @@ class QuestionScreen extends JPanel {
         Color p = Color.decode("#46178f");
         setBackground(p);
         JLabel q_label = new JLabel("<html><center>"+ set.getQuestion() +"<center></html>", SwingConstants.CENTER);
-        
-        q_label.setPreferredSize(new Dimension(200, 200));
         
         Border border = q_label.getBorder();
         Border margin = new EmptyBorder(0,100,0,100);
