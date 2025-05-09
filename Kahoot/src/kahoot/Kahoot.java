@@ -91,7 +91,7 @@ public class Kahoot {
         
         for (int i = 0; i < rounds; i++) {
             
-            int start_time = i * 8000;
+            int start_time = i * 12000;
             q_timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -108,20 +108,10 @@ public class Kahoot {
                     mainPanel.add(qa_screen, "answers");
                     change_state("answers");
                 }
-            }, start_time + 3000);
-
-            l_timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    Leaderboard score_screen = new Leaderboard();
-                    mainPanel.add(score_screen, "leaderboard");
-                    change_state("leaderboard");
-                    set.changeRound();
-                }
-            }, start_time + 6000);
+            }, start_time + 5000);
         }
         
-        int total_time = rounds * 8000;
+        int total_time = rounds * 12000;
         go_timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -130,7 +120,7 @@ public class Kahoot {
                 change_state("gameover");
                 game_state = "gameover";
             }
-        }, total_time + 2000);
+        }, total_time);
     }
     
 }
