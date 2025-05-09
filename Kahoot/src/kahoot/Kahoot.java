@@ -16,19 +16,24 @@ import static kahoot.Kahoot.game_state;
 import static kahoot.Kahoot.set;
 import kahoot.server_logic.Server;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+
+// for the server file 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.Socket;
+
 
 /**
  *
  * @author Sanjida Orpi and Jenesis Blancaflor
  */
 public class Kahoot {
-    
+
     static int game_pin;
     // game states: setup > waiting > play > gameover
     static String game_state = "setup";
     static QuestionSet set = new QuestionSet();
-    
+
     // UI
     static JFrame frame;
     static CardLayout cardLayout;
@@ -38,27 +43,26 @@ public class Kahoot {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+
         // make game pin for players, random 4 digit number
         Random r = new Random();
         game_pin = r.nextInt(9000) + 1000;
-        
+
         // if question set could be created, game state can start
         while (set.isCreated() == false) {
             set = new QuestionSet();
         }
-        
+
         frame = new JFrame("Java Kahoot");
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
         WaitingRoom waitingRoom = new WaitingRoom();
         mainPanel.add(waitingRoom, "waiting");
-        
-        
+
         QAScreen answersScreen = new QAScreen();
         mainPanel.add(answersScreen, "answers");
-        
+
         frame.add(mainPanel);
         frame.setSize(1280, 720);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -69,12 +73,12 @@ public class Kahoot {
         cardLayout.show(mainPanel, "waiting");
         
     }
-    
+
     public static void change_state(String state) {
         game_state = state;
         cardLayout.show(mainPanel, state);
     }
-    
+
     public static void game_manager() {
         
         int rounds = set.rounds;
@@ -82,6 +86,7 @@ public class Kahoot {
         Timer a_timer = new Timer();
         Timer l_timer = new Timer();
         Timer go_timer = new Timer();
+        
         game_state = "play";
         
         for (int i = 0; i < rounds; i++) {
@@ -115,7 +120,7 @@ public class Kahoot {
                 }
             }, start_time + 6000);
         }
-
+        
         int total_time = rounds * 8000;
         go_timer.schedule(new TimerTask() {
             @Override
@@ -129,7 +134,6 @@ public class Kahoot {
     }
     
 }
-
 
 class WaitingRoom extends JPanel {
 
@@ -151,83 +155,88 @@ class WaitingRoom extends JPanel {
         start.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         add(title);
-        add(start);
-        
+        add(start); 
     }
+    
 }
 
-
 class QuestionScreen extends JPanel {
+
     public QuestionScreen() {
         setLayout(new BorderLayout());
         Color p = Color.decode("#46178f");
         setBackground(p);
         JLabel q_label = new JLabel(set.getQuestion(), SwingConstants.CENTER);
         q_label.setSize(q_label.getPreferredSize());
+
         q_label.setSize(q_label.getPreferredSize());
         
         q_label.setFont(new Font("SansSerif", Font.BOLD, 48));
         q_label.setForeground(Color.WHITE);
         add(q_label, BorderLayout.CENTER);
     }
+    
 }
 
 class QAScreen extends JPanel {
+
     public QAScreen() {
         setLayout(new BorderLayout());
         setBackground(new Color(70, 23, 143));
-        
+
         JSONArray choices = set.getChoices();
-        
+
         JLabel roundLabel = new JLabel(set.getQuestion(), SwingConstants.CENTER);
         roundLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
         roundLabel.setForeground(Color.WHITE);
-        
+
         JPanel answer_panel = new JPanel();
         answer_panel.setBorder(new EmptyBorder(10, 10, 10, 10));
         answer_panel.setLayout(new GridLayout(2, 2, 10, 10));
-        
+
         Color r = Color.decode("#c60929");
         Color b = Color.decode("#0542b9");
         Color y = Color.decode("#ffc00a");
         Color g = Color.decode("#26890c");
-        
+
         JLabel choice1 = new JLabel((String) choices.get(0), SwingConstants.CENTER);
         choice1.setFont(new Font("SansSerif", Font.BOLD, 28));
         choice1.setBackground(r);
         choice1.setForeground(Color.white);
         choice1.setOpaque(true);
-        
+
         JLabel choice2 = new JLabel((String) choices.get(1), SwingConstants.CENTER);
         choice2.setFont(new Font("SansSerif", Font.BOLD, 28));
         choice2.setBackground(b);
         choice2.setForeground(Color.white);
         choice2.setOpaque(true);
-        
+
         JLabel choice3 = new JLabel((String) choices.get(2), SwingConstants.CENTER);
         choice3.setFont(new Font("SansSerif", Font.BOLD, 28));
         choice3.setForeground(Color.white);
         choice3.setBackground(y);
         choice3.setOpaque(true);
-        
+
         JLabel choice4 = new JLabel((String) choices.get(3), SwingConstants.CENTER);
         choice4.setFont(new Font("SansSerif", Font.BOLD, 28));
         choice4.setForeground(Color.white);
         choice4.setBackground(g);
         choice4.setOpaque(true);
-        
+
         answer_panel.add(choice1);
         answer_panel.add(choice2);
         answer_panel.add(choice3);
         answer_panel.add(choice4);
-        
+
         add(roundLabel, BorderLayout.NORTH);
         add(answer_panel, BorderLayout.CENTER);
     }
+    
 }
 
 
 class Leaderboard extends JPanel {
+    
     public Leaderboard() {
         setLayout(new BorderLayout());
         Color p = Color.decode("#46178f");
@@ -237,10 +246,12 @@ class Leaderboard extends JPanel {
         q_label.setForeground(Color.WHITE);
         add(q_label, BorderLayout.CENTER);
     }
+    
 }
 
 
 class GameOver extends JPanel {
+    
     public GameOver() {
         setLayout(new BorderLayout());
         Color p = Color.decode("#46178f");
@@ -250,18 +261,30 @@ class GameOver extends JPanel {
         q_label.setForeground(Color.WHITE);
         add(q_label, BorderLayout.CENTER);
     }
+    
 }
 
-
 class ButtonListener implements ActionListener{
-    @Override
     
+    @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         if ("start".equals(e.getActionCommand())) {
             game_state = "play";
             Kahoot.game_manager();
+            
+            // let server know button to start is pressed
+            try {
+                Socket socket = new Socket("localhost", 5190);
+                PrintStream out = new PrintStream(socket.getOutputStream());
+                out.println("GET /start HTTP/1.1");
+                out.println("Host: localhost");
+                out.println();
+                socket.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
         }
-        
     }
 }
