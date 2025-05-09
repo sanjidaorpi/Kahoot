@@ -34,7 +34,6 @@ public class Kahoot {
     static CardLayout cardLayout;
     static JPanel mainPanel;
     
-    
     /**
      * @param args the command line arguments
      */
@@ -77,47 +76,56 @@ public class Kahoot {
     }
     
     public static void game_manager() {
-        // if entered play state
-        // for the number of rounds
-        // call QuestionScreen for # of seconds
-        // call QAScreen
-        // call LBScreen
         
+        int rounds = set.rounds;
+        Timer q_timer = new Timer();
+        Timer a_timer = new Timer();
+        Timer l_timer = new Timer();
+        Timer go_timer = new Timer();
         game_state = "play";
-        int totalRounds = set.rounds;
-        int[] roundIndex = {0};
+        
+        for (int i = 0; i < rounds; i++) {
+            
+            int start_time = i * 8000;
+            q_timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    QuestionScreen q_screen = new QuestionScreen();
+                    mainPanel.add(q_screen, "question");
+                    change_state("question");
+                }
+            }, start_time);
 
-        Timer timer = new Timer();
-        TimerTask gameTask = new TimerTask() {
-            boolean showingQuestion = true;
+            a_timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    QAScreen qa_screen = new QAScreen();
+                    mainPanel.add(qa_screen, "answers");
+                    change_state("answers");
+                }
+            }, start_time + 3000);
 
+            l_timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Leaderboard score_screen = new Leaderboard();
+                    mainPanel.add(score_screen, "leaderboard");
+                    change_state("leaderboard");
+                    set.changeRound();
+                }
+            }, start_time + 6000);
+        }
+
+        int total_time = rounds * 8000;
+        go_timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (roundIndex[0] >= totalRounds) {
-                    timer.cancel();
-                    game_state = "gameover";
-                    return;
-                }
-
-                if (showingQuestion) {
-                    QuestionScreen qScreen = new QuestionScreen();
-                    mainPanel.add(qScreen, "question");
-                    change_state("question");
-                    showingQuestion = false;
-                    
-                } else {
-                    QAScreen qaScreen = new QAScreen();
-                    mainPanel.add(qaScreen, "answers");
-                    change_state("answers");
-                    showingQuestion = true;
-                    set.changeRound();
-                    roundIndex[0]++;
-                }
+                GameOver over_screen = new GameOver();
+                mainPanel.add(over_screen, "gameover");
+                change_state("gameover");
+                game_state = "gameover";
             }
-        };
-
-        
-        timer.scheduleAtFixedRate(gameTask, 0, 10000);
+        }, total_time + 2000);
     }
     
 }
@@ -126,21 +134,25 @@ public class Kahoot {
 class WaitingRoom extends JPanel {
 
     public WaitingRoom() {
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Color p = Color.decode("#46178f");
         setBackground(p);
 
-        JLabel titleLabel = new JLabel("Java Kahoot!", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
-        titleLabel.setForeground(Color.WHITE);
+        JLabel title = new JLabel("Java Kahoot", SwingConstants.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 48));
+        title.setForeground(Color.WHITE);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton startButton = new JButton("Start Game");
-        startButton.setActionCommand("start");
-        startButton.addActionListener(new ButtonListener()); 
-        startButton.setFont(new Font("SansSerif", Font.BOLD, 28));
+        JButton start = new JButton("Start Game");
+        start.setActionCommand("start");
+        start.addActionListener(new ButtonListener()); 
+        start.setFont(new Font("SansSerif", Font.BOLD, 28));
+        start.setAlignmentX(Component.CENTER_ALIGNMENT);
+        start.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+        add(title);
+        add(start);
         
-        add(titleLabel, BorderLayout.NORTH);
-        add(startButton, BorderLayout.SOUTH);
     }
 }
 
@@ -152,7 +164,8 @@ class QuestionScreen extends JPanel {
         setBackground(p);
         JLabel q_label = new JLabel(set.getQuestion(), SwingConstants.CENTER);
         q_label.setSize(q_label.getPreferredSize());
-    
+        q_label.setSize(q_label.getPreferredSize());
+        
         q_label.setFont(new Font("SansSerif", Font.BOLD, 48));
         q_label.setForeground(Color.WHITE);
         add(q_label, BorderLayout.CENTER);
@@ -210,6 +223,32 @@ class QAScreen extends JPanel {
         
         add(roundLabel, BorderLayout.NORTH);
         add(answer_panel, BorderLayout.CENTER);
+    }
+}
+
+
+class Leaderboard extends JPanel {
+    public Leaderboard() {
+        setLayout(new BorderLayout());
+        Color p = Color.decode("#46178f");
+        setBackground(p);
+        JLabel q_label = new JLabel("scoreboard", SwingConstants.CENTER);
+        q_label.setFont(new Font("SansSerif", Font.BOLD, 48));
+        q_label.setForeground(Color.WHITE);
+        add(q_label, BorderLayout.CENTER);
+    }
+}
+
+
+class GameOver extends JPanel {
+    public GameOver() {
+        setLayout(new BorderLayout());
+        Color p = Color.decode("#46178f");
+        setBackground(p);
+        JLabel q_label = new JLabel("Top Scorers", SwingConstants.CENTER);
+        q_label.setFont(new Font("SansSerif", Font.BOLD, 48));
+        q_label.setForeground(Color.WHITE);
+        add(q_label, BorderLayout.CENTER);
     }
 }
 
