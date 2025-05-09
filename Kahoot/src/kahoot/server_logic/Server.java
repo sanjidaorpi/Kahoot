@@ -122,6 +122,8 @@ public class Server {
                                 if (!responderOrder.contains(username)) {
                                     responderOrder.add(username);
                                     int place = responderOrder.size();
+                                    
+                                    // 1st place 5pts, 2nd place 3pt, 3rd plce 1pt
                                     int pts = (place == 1) ? 5
                                             : (place == 2) ? 3
                                                     : (place == 3) ? 1
@@ -132,8 +134,6 @@ public class Server {
                         }
                     } catch (Exception ignored) {
                     }
-                    // 204 to avoid page reload
-                    sout.print("HTTP/1.1 204 No Content\r\n\r\n");
                     s.close();
                     continue;
                 }
@@ -149,6 +149,7 @@ public class Server {
                         if (!questionSet.isCreated()) { // check to see if file is loaded
                             sendHTML(sout, "<h3>No question file loaded.</h3>", false);
 
+                            // from runGameCycle 
                         } else if (currentPhase == 1) {
                             JSONArray choices = questionSet.getChoices();
 
@@ -195,11 +196,14 @@ public class Server {
                         }
 
                     } else if (gameState.equals("end")) {
+                        
                         // show sorted leaderboard
                         String lb = "<h2>Game Over!</h2><h3>Leaderboard:</h3><ul>";
                         List<Map.Entry<String, Integer>> list = new ArrayList<>(scores.entrySet());
+                        
                         // sort the list of scores 
                         list.sort((a, b) -> b.getValue() - a.getValue());
+                        
                         // output the points
                         for (Map.Entry<String, Integer> e : list) {
                             // name: points format for scoreboard
@@ -308,6 +312,7 @@ public class Server {
                font-size: 30px;
                } 
         </style>"""
+                // refreshing page:  https://stackoverflow.com/questions/5294842/refresh-a-page-using-javascript-or-html
                 + (refresh ? "<meta http-equiv=\"refresh\" content=\"2\">" : "")
                 + """
     </head>
