@@ -21,6 +21,8 @@ import org.json.simple.JSONArray;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 
 
 /**
@@ -48,7 +50,7 @@ public class Kahoot {
         Random r = new Random();
         game_pin = r.nextInt(9000) + 1000;
 
-        // if question set could be created, game state can start
+        // keep trying to create question set
         while (set.isCreated() == false) {
             set = new QuestionSet();
         }
@@ -68,7 +70,7 @@ public class Kahoot {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        // lobby
+        // start at lobby
         game_state = "waiting";
         cardLayout.show(mainPanel, "waiting");
         
@@ -84,8 +86,7 @@ public class Kahoot {
         int rounds = set.rounds;
         Timer q_timer = new Timer();
         Timer a_timer = new Timer();
-        Timer l_timer = new Timer();
-        Timer go_timer = new Timer();
+        Timer end_timer = new Timer();
         
         game_state = "play";
         
@@ -107,12 +108,14 @@ public class Kahoot {
                     QAScreen qa_screen = new QAScreen();
                     mainPanel.add(qa_screen, "answers");
                     change_state("answers");
+                    set.changeRound();
                 }
             }, start_time + 5000);
+            
         }
         
         int total_time = rounds * 12000;
-        go_timer.schedule(new TimerTask() {
+        end_timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 GameOver over_screen = new GameOver();
@@ -137,7 +140,7 @@ class WaitingRoom extends JPanel {
         title.setForeground(Color.WHITE);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton start = new JButton("Start Game");
+        JButton start = new JButton("Start");
         start.setActionCommand("start");
         start.addActionListener(new ButtonListener()); 
         start.setFont(new Font("SansSerif", Font.BOLD, 28));
@@ -156,12 +159,15 @@ class QuestionScreen extends JPanel {
         setLayout(new BorderLayout());
         Color p = Color.decode("#46178f");
         setBackground(p);
-        JLabel q_label = new JLabel(set.getQuestion(), SwingConstants.CENTER);
-        q_label.setSize(q_label.getPreferredSize());
-
-        q_label.setSize(q_label.getPreferredSize());
+        JLabel q_label = new JLabel("<html><center>"+ set.getQuestion() +"<center></html>", SwingConstants.CENTER);
         
-        q_label.setFont(new Font("SansSerif", Font.BOLD, 48));
+        q_label.setPreferredSize(new Dimension(200, 200));
+        
+        Border border = q_label.getBorder();
+        Border margin = new EmptyBorder(0,100,0,100);
+        q_label.setBorder(new CompoundBorder(border, margin));
+        
+        q_label.setFont(new Font("SansSerif", Font.BOLD, 45));
         q_label.setForeground(Color.WHITE);
         add(q_label, BorderLayout.CENTER);
     }
@@ -173,12 +179,15 @@ class QAScreen extends JPanel {
     public QAScreen() {
         setLayout(new BorderLayout());
         setBackground(new Color(70, 23, 143));
-
+        
         JSONArray choices = set.getChoices();
 
-        JLabel roundLabel = new JLabel(set.getQuestion(), SwingConstants.CENTER);
-        roundLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
-        roundLabel.setForeground(Color.WHITE);
+        JLabel q_label = new JLabel("<html>"+ set.getQuestion() +"</html>", SwingConstants.CENTER);
+        Border border = q_label.getBorder();
+        Border margin = new EmptyBorder(50,10,50,10);
+        q_label.setBorder(new CompoundBorder(border, margin));
+        q_label.setFont(new Font("SansSerif", Font.BOLD, 28));
+        q_label.setForeground(Color.WHITE);
 
         JPanel answer_panel = new JPanel();
         answer_panel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -189,26 +198,26 @@ class QAScreen extends JPanel {
         Color y = Color.decode("#ffc00a");
         Color g = Color.decode("#26890c");
 
-        JLabel choice1 = new JLabel((String) choices.get(0), SwingConstants.CENTER);
-        choice1.setFont(new Font("SansSerif", Font.BOLD, 28));
+        JLabel choice1 = new JLabel("<html>"+(String) choices.get(0)+"</html>", SwingConstants.CENTER);
+        choice1.setFont(new Font("SansSerif", Font.BOLD, 35));
         choice1.setBackground(r);
         choice1.setForeground(Color.white);
         choice1.setOpaque(true);
 
-        JLabel choice2 = new JLabel((String) choices.get(1), SwingConstants.CENTER);
-        choice2.setFont(new Font("SansSerif", Font.BOLD, 28));
+        JLabel choice2 = new JLabel("<html>"+(String) choices.get(1)+"</html>", SwingConstants.CENTER);
+        choice2.setFont(new Font("SansSerif", Font.BOLD, 35));
         choice2.setBackground(b);
         choice2.setForeground(Color.white);
         choice2.setOpaque(true);
 
-        JLabel choice3 = new JLabel((String) choices.get(2), SwingConstants.CENTER);
-        choice3.setFont(new Font("SansSerif", Font.BOLD, 28));
+        JLabel choice3 = new JLabel("<html>"+(String) choices.get(2)+"</html>", SwingConstants.CENTER);
+        choice3.setFont(new Font("SansSerif", Font.BOLD, 35));
         choice3.setForeground(Color.white);
         choice3.setBackground(y);
         choice3.setOpaque(true);
 
-        JLabel choice4 = new JLabel((String) choices.get(3), SwingConstants.CENTER);
-        choice4.setFont(new Font("SansSerif", Font.BOLD, 28));
+        JLabel choice4 = new JLabel("<html>"+(String) choices.get(3)+"</html>", SwingConstants.CENTER);
+        choice4.setFont(new Font("SansSerif", Font.BOLD, 35));
         choice4.setForeground(Color.white);
         choice4.setBackground(g);
         choice4.setOpaque(true);
@@ -218,23 +227,8 @@ class QAScreen extends JPanel {
         answer_panel.add(choice3);
         answer_panel.add(choice4);
 
-        add(roundLabel, BorderLayout.NORTH);
+        add(q_label, BorderLayout.NORTH);
         add(answer_panel, BorderLayout.CENTER);
-    }
-    
-}
-
-
-class Leaderboard extends JPanel {
-    
-    public Leaderboard() {
-        setLayout(new BorderLayout());
-        Color p = Color.decode("#46178f");
-        setBackground(p);
-        JLabel q_label = new JLabel("scoreboard", SwingConstants.CENTER);
-        q_label.setFont(new Font("SansSerif", Font.BOLD, 48));
-        q_label.setForeground(Color.WHITE);
-        add(q_label, BorderLayout.CENTER);
     }
     
 }
@@ -253,6 +247,7 @@ class GameOver extends JPanel {
     }
     
 }
+
 
 class ButtonListener implements ActionListener{
     
