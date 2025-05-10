@@ -9,7 +9,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.*;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import static kahoot.Kahoot.game_state;
