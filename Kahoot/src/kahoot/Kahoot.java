@@ -23,6 +23,8 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Map;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
@@ -37,6 +39,9 @@ public class Kahoot {
     // game states: setup > waiting > play > gameover
     static String game_state = "setup";
     static QuestionSet set = new QuestionSet();
+    
+    // start the server
+    static Server server = new Server();
 
     // UI
     static JFrame frame;
@@ -116,6 +121,11 @@ public class Kahoot {
         end_timer.schedule(new TimerTask() {
             @Override
             public void run() {
+                String lb = server.getLeaderboard();
+                System.out.println(lb);
+                //server = null;
+                
+                
                 GameOver over_screen = new GameOver();
                 mainPanel.add(over_screen, "gameover");
                 change_state("gameover");

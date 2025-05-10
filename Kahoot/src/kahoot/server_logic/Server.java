@@ -25,6 +25,8 @@ public class Server {
     static ArrayList<ProcessConnection> clients = new ArrayList<>();
     static QuestionSet questionSet = new QuestionSet();
     static int currentPhase = 0;
+    
+    static String lb;
 
     // leaderboard state
     // referenced for concurrency control with hashmaps:
@@ -199,7 +201,7 @@ public class Server {
                     } else if (gameState.equals("end")) {
 
                         // show sorted leaderboard
-                        String lb = "<h2>Game Over!</h2><h3>Leaderboard:</h3><ul>";
+                        lb = "<h2>Game Over!</h2><h3>Leaderboard:</h3><ul>";
                         List<Map.Entry<String, Integer>> list = new ArrayList<>(scores.entrySet());
 
                         // sort the list of scores 
@@ -238,6 +240,10 @@ public class Server {
             }
         } catch (Exception ex) {
         }
+    }
+    
+    public static String getLeaderboard() {
+        return lb;
     }
 
     // runs through the game cycle of waiting then showing the choices
