@@ -25,8 +25,6 @@ public class Server {
     static ArrayList<ProcessConnection> clients = new ArrayList<>();
     static QuestionSet questionSet = new QuestionSet();
     static int currentPhase = 0;
-    
-    static String lb;
 
     // leaderboard state
     // referenced for concurrency control with hashmaps:
@@ -41,6 +39,7 @@ public class Server {
             System.out.println("Server running at http://localhost:5190");
 
             while (true) {
+                // create a socket for the network
                 Socket s = ss.accept();
                 Scanner sin = new Scanner(s.getInputStream());
                 PrintStream sout = new PrintStream(s.getOutputStream());
@@ -49,10 +48,11 @@ public class Server {
                     s.close();
                     continue;
                 }
-
+                
+                //check every line scanner
                 String line = sin.nextLine();
 
-                // join the game screen 
+                // join the game screen, from inital connection to the http web page 
                 if (line.startsWith("GET / ") || line.startsWith("GET /HTTP")) {
                     sendHTML(sout, """
                         <h2>Join the Game</h2>
@@ -66,7 +66,7 @@ public class Server {
                     continue;
                 }
 
-                // player joined 
+                // player joined, determine if valid or need to move in to waiting state
                 if (line.startsWith("GET") && line.contains("/join")) {
                     String username = extractUserInfo(line, "username");
                     String pin = extractUserInfo(line, "pin");
@@ -201,7 +201,10 @@ public class Server {
                     } else if (gameState.equals("end")) {
 
                         // show sorted leaderboard
-                        lb = "<h2>Game Over!</h2><h3>Leaderboard:</h3><ul>";
+                        String lb = "<h2>Game Over!</h2><h3>Leaderboard:</h3><ul>";
+                        
+
+                        // map of scores, each entry a string (username) and the score (int) 
                         List<Map.Entry<String, Integer>> list = new ArrayList<>(scores.entrySet());
 
                         // sort the list of scores 
@@ -222,7 +225,9 @@ public class Server {
                 if (line.startsWith("GET") && line.contains("/scores")) {
                     // show sorted leaderboard
                     String lb = "<h2>Game Over!</h2><h3>Leaderboard:</h3><ul>";
-                    List<Map.Entry<String, Integer>> list = new ArrayList<>(scores.entrySet());
+                    
+                    // map of scores, each entry a string (username) and the score (int) 
+                    List<Map.Entry <String, Integer>> list = new ArrayList<>(scores.entrySet());
 
                     // sort the list of scores 
                     list.sort((a, b) -> b.getValue() - a.getValue());
@@ -240,10 +245,6 @@ public class Server {
             }
         } catch (Exception ex) {
         }
-    }
-    
-    public static String getLeaderboard() {
-        return lb;
     }
 
     // runs through the game cycle of waiting then showing the choices

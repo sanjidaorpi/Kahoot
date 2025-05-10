@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
-
 /**
  *
  * @author Sanjida Orpi and Jenesis Blancaflor
@@ -39,7 +38,7 @@ public class Kahoot {
     // game states: setup > waiting > play > gameover
     static String game_state = "setup";
     static QuestionSet set = new QuestionSet();
-    
+
     // start the server
     static Server server = new Server();
 
@@ -47,11 +46,17 @@ public class Kahoot {
     static JFrame frame;
     static CardLayout cardLayout;
     static JPanel mainPanel;
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws UnknownHostException {
+        
+        // ensure server and GUI dont interfere
+        Thread serverThread = new Thread(() -> {
+            Server.main(null);
+        });
+        serverThread.start();
 
         // keep trying to create question set
         while (set.isCreated() == false) {
@@ -76,7 +81,7 @@ public class Kahoot {
         // start at lobby
         game_state = "waiting";
         cardLayout.show(mainPanel, "waiting");
-        
+
     }
 
     public static void change_state(String state) {
@@ -85,16 +90,16 @@ public class Kahoot {
     }
 
     public static void game_manager() {
-        
+
         int rounds = set.rounds;
         Timer q_timer = new Timer();
         Timer a_timer = new Timer();
         Timer end_timer = new Timer();
-        
+
         game_state = "play";
-        
+
         for (int i = 0; i < rounds; i++) {
-            
+
             int start_time = i * 12000;
             q_timer.schedule(new TimerTask() {
                 @Override
@@ -114,9 +119,9 @@ public class Kahoot {
                     set.changeRound();
                 }
             }, start_time + 5000);
-            
+
         }
-        
+
         int total_time = rounds * 12000;
         end_timer.schedule(new TimerTask() {
             @Override
@@ -124,8 +129,7 @@ public class Kahoot {
                 String lb = server.getLeaderboard();
                 System.out.println(lb);
                 //server = null;
-                
-                
+
                 GameOver over_screen = new GameOver();
                 mainPanel.add(over_screen, "gameover");
                 change_state("gameover");
@@ -133,7 +137,7 @@ public class Kahoot {
             }
         }, total_time);
     }
-    
+
 }
 
 class WaitingRoom extends JPanel {
@@ -142,13 +146,13 @@ class WaitingRoom extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Color p = Color.decode("#46178f");
         setBackground(p);
-        
+
         JPanel top_panel = new JPanel();
-        
+
         top_panel.setLayout(new BoxLayout(top_panel, BoxLayout.PAGE_AXIS));
         top_panel.setPreferredSize(new Dimension(500, 10));
         top_panel.setOpaque(false);
-        
+
         InetAddress localHost = InetAddress.getLocalHost();
         JLabel instruction = new JLabel("Please open your browser and go to: " + localHost.getHostAddress() + ":5190/", SwingConstants.CENTER);
         instruction.setFont(new Font("SansSerif", Font.BOLD, 25));
@@ -156,27 +160,26 @@ class WaitingRoom extends JPanel {
         instruction.setAlignmentX(Component.CENTER_ALIGNMENT);
         Border inst_padding = BorderFactory.createEmptyBorder(50, 0, 0, 0);
         instruction.setBorder(inst_padding);
-        
+
         JLabel game_pin = new JLabel("Game PIN: 1234", SwingConstants.CENTER);
         game_pin.setFont(new Font("SansSerif", Font.BOLD, 25));
         game_pin.setForeground(Color.WHITE);
         game_pin.setAlignmentX(Component.CENTER_ALIGNMENT);
         Border pin_padding = BorderFactory.createEmptyBorder(20, 0, 0, 0);
         game_pin.setBorder(pin_padding);
-        
+
         top_panel.add(instruction);
         top_panel.add(game_pin);
-        
+
         JLabel title = new JLabel("Kahoot!", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 70));
         title.setForeground(Color.WHITE);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
 
         JPanel middle_panel = new JPanel();
         middle_panel.setLayout(new BoxLayout(middle_panel, BoxLayout.Y_AXIS));
         middle_panel.setOpaque(false);
-        
+
         JLabel message = new JLabel("Waiting for players...", SwingConstants.CENTER);
         //message.setOpaque(true);
         //message.setBackground(Color.decode("#25076b"));
@@ -184,35 +187,35 @@ class WaitingRoom extends JPanel {
         message.setForeground(Color.LIGHT_GRAY);
         message.setAlignmentX(Component.CENTER_ALIGNMENT);
         Border border = message.getBorder();
-        Border margin = new EmptyBorder(10,10,10,10);
+        Border margin = new EmptyBorder(10, 10, 10, 10);
         message.setBorder(new CompoundBorder(border, margin));
         Border mess_padding = BorderFactory.createEmptyBorder(50, 0, 50, 0);
         message.setBorder(mess_padding);
-        
+
         JButton start = new JButton("Start");
         start.setSize(new Dimension(200, 200));
         middle_panel.setPreferredSize(new Dimension(500, 100));
         start.setActionCommand("start");
-        start.addActionListener(new ButtonListener()); 
+        start.addActionListener(new ButtonListener());
         start.setFont(new Font("SansSerif", Font.BOLD, 40));
         start.setAlignmentX(Component.CENTER_ALIGNMENT);
         start.setAlignmentY(Component.CENTER_ALIGNMENT);
-        
+
         middle_panel.add(message);
         middle_panel.add(start);
-        
-        top_panel.add( Box.createVerticalGlue() );
-        middle_panel.add( Box.createVerticalGlue() );
-        message.add( Box.createVerticalGlue() );
-        
+
+        top_panel.add(Box.createVerticalGlue());
+        middle_panel.add(Box.createVerticalGlue());
+        message.add(Box.createVerticalGlue());
+
         add(title);
         add(top_panel);
         add(middle_panel);
-        
+
         Border padding = BorderFactory.createEmptyBorder(80, 0, 150, 0);
         setBorder(padding);
     }
-    
+
 }
 
 class QuestionScreen extends JPanel {
@@ -221,17 +224,17 @@ class QuestionScreen extends JPanel {
         setLayout(new BorderLayout());
         Color p = Color.decode("#46178f");
         setBackground(p);
-        JLabel q_label = new JLabel("<html><center>"+ set.getQuestion() +"<center></html>", SwingConstants.CENTER);
-        
+        JLabel q_label = new JLabel("<html><center>" + set.getQuestion() + "<center></html>", SwingConstants.CENTER);
+
         Border border = q_label.getBorder();
-        Border margin = new EmptyBorder(0,100,0,100);
+        Border margin = new EmptyBorder(0, 100, 0, 100);
         q_label.setBorder(new CompoundBorder(border, margin));
-        
+
         q_label.setFont(new Font("SansSerif", Font.BOLD, 35));
         q_label.setForeground(Color.WHITE);
         add(q_label, BorderLayout.CENTER);
     }
-    
+
 }
 
 class QAScreen extends JPanel {
@@ -239,12 +242,12 @@ class QAScreen extends JPanel {
     public QAScreen() {
         setLayout(new BorderLayout());
         setBackground(new Color(70, 23, 143));
-        
+
         JSONArray choices = set.getChoices();
 
-        JLabel q_label = new JLabel("<html>"+ set.getQuestion() +"</html>", SwingConstants.CENTER);
+        JLabel q_label = new JLabel("<html>" + set.getQuestion() + "</html>", SwingConstants.CENTER);
         Border border = q_label.getBorder();
-        Border margin = new EmptyBorder(50,10,50,10);
+        Border margin = new EmptyBorder(50, 10, 50, 10);
         q_label.setBorder(new CompoundBorder(border, margin));
         q_label.setFont(new Font("SansSerif", Font.BOLD, 28));
         q_label.setForeground(Color.WHITE);
@@ -258,25 +261,25 @@ class QAScreen extends JPanel {
         Color y = Color.decode("#ffc00a");
         Color g = Color.decode("#26890c");
 
-        JLabel choice1 = new JLabel("<html>"+(String) choices.get(0)+"</html>", SwingConstants.CENTER);
+        JLabel choice1 = new JLabel("<html>" + (String) choices.get(0) + "</html>", SwingConstants.CENTER);
         choice1.setFont(new Font("SansSerif", Font.BOLD, 35));
         choice1.setBackground(r);
         choice1.setForeground(Color.white);
         choice1.setOpaque(true);
 
-        JLabel choice2 = new JLabel("<html>"+(String) choices.get(1)+"</html>", SwingConstants.CENTER);
+        JLabel choice2 = new JLabel("<html>" + (String) choices.get(1) + "</html>", SwingConstants.CENTER);
         choice2.setFont(new Font("SansSerif", Font.BOLD, 35));
         choice2.setBackground(b);
         choice2.setForeground(Color.white);
         choice2.setOpaque(true);
 
-        JLabel choice3 = new JLabel("<html>"+(String) choices.get(2)+"</html>", SwingConstants.CENTER);
+        JLabel choice3 = new JLabel("<html>" + (String) choices.get(2) + "</html>", SwingConstants.CENTER);
         choice3.setFont(new Font("SansSerif", Font.BOLD, 35));
         choice3.setForeground(Color.white);
         choice3.setBackground(y);
         choice3.setOpaque(true);
 
-        JLabel choice4 = new JLabel("<html>"+(String) choices.get(3)+"</html>", SwingConstants.CENTER);
+        JLabel choice4 = new JLabel("<html>" + (String) choices.get(3) + "</html>", SwingConstants.CENTER);
         choice4.setFont(new Font("SansSerif", Font.BOLD, 35));
         choice4.setForeground(Color.white);
         choice4.setBackground(g);
@@ -290,12 +293,11 @@ class QAScreen extends JPanel {
         add(q_label, BorderLayout.NORTH);
         add(answer_panel, BorderLayout.CENTER);
     }
-    
+
 }
 
-
 class GameOver extends JPanel {
-    
+
     public GameOver() {
         setLayout(new BorderLayout());
         Color p = Color.decode("#46178f");
@@ -305,19 +307,18 @@ class GameOver extends JPanel {
         q_label.setForeground(Color.WHITE);
         add(q_label, BorderLayout.CENTER);
     }
-    
+
 }
 
+class ButtonListener implements ActionListener {
 
-class ButtonListener implements ActionListener{
-    
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if ("start".equals(e.getActionCommand())) {
             game_state = "play";
             Kahoot.game_manager();
-            
+
             // let server know button to start is pressed
             try {
                 Socket socket = new Socket("localhost", 5190);
