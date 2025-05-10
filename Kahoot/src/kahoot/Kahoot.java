@@ -316,6 +316,7 @@ class GameOver extends JPanel {
             JLabel s_label = new JLabel(e.getKey() + ": " + e.getValue() + " pts");
             s_label.setFont(new Font("SansSerif", Font.BOLD, 25));
             s_label.setForeground(Color.WHITE);
+            s_label.setAlignmentX(Component.CENTER_ALIGNMENT);
             score_panel.add(s_label);
         }
       
