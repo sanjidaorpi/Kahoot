@@ -34,13 +34,9 @@ import javax.swing.border.CompoundBorder;
  */
 public class Kahoot {
 
-    static int game_pin;
     // game states: setup > waiting > play > gameover
     static String game_state = "setup";
     static QuestionSet set = new QuestionSet();
-
-    // start the server
-    static Server server = new Server();
 
     // UI
     static JFrame frame;
@@ -53,10 +49,10 @@ public class Kahoot {
     public static void main(String[] args) throws UnknownHostException {
         
         // ensure server and GUI dont interfere
-        Thread serverThread = new Thread(() -> {
+        Thread server = new Thread(() -> {
             Server.main(null);
         });
-        serverThread.start();
+        server.start();
 
         // keep trying to create question set
         while (set.isCreated() == false) {
@@ -126,10 +122,6 @@ public class Kahoot {
         end_timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                String lb = server.getLeaderboard();
-                System.out.println(lb);
-                //server = null;
-
                 GameOver over_screen = new GameOver();
                 mainPanel.add(over_screen, "gameover");
                 change_state("gameover");
@@ -299,13 +291,39 @@ class QAScreen extends JPanel {
 class GameOver extends JPanel {
 
     public GameOver() {
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Color p = Color.decode("#46178f");
         setBackground(p);
-        JLabel q_label = new JLabel("Top Scorers", SwingConstants.CENTER);
-        q_label.setFont(new Font("SansSerif", Font.BOLD, 48));
-        q_label.setForeground(Color.WHITE);
-        add(q_label, BorderLayout.CENTER);
+
+        JPanel top_panel = new JPanel();
+        top_panel.setOpaque(false);
+        Border padding = BorderFactory.createEmptyBorder(100, 0, 0, 0);
+        top_panel.setBorder(padding);
+
+        JLabel label = new JLabel("Leaderboard");
+        label.setFont(new Font("SansSerif", Font.BOLD, 48));
+        label.setForeground(Color.WHITE);
+        top_panel.add(label);
+        
+        Map<String, Integer> scores = Server.getLeaderboard();
+        java.util.List<Map.Entry<String, Integer>> list = new ArrayList<>(scores.entrySet());
+        list.sort((a, b) -> b.getValue() - a.getValue());
+        
+        JPanel score_panel = new JPanel();
+        score_panel.setLayout(new BoxLayout(score_panel, BoxLayout.Y_AXIS));
+        score_panel.setOpaque(false);
+        for (Map.Entry<String, Integer> e : list) {
+            JLabel s_label = new JLabel(e.getKey() + ": " + e.getValue() + " pts");
+            s_label.setFont(new Font("SansSerif", Font.BOLD, 25));
+            s_label.setForeground(Color.WHITE);
+            score_panel.add(s_label);
+        }
+      
+        top_panel.add(Box.createVerticalGlue());
+        score_panel.add(Box.createVerticalGlue());
+        
+        add(top_panel);
+        add(score_panel);
     }
 
 }

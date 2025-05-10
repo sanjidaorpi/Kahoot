@@ -250,8 +250,8 @@ public class Server {
         }
     }
     
-    public static String getLeaderboard() {
-        return lb;
+    public static Map<String, Integer> getLeaderboard() {
+        return scores;
     }
 
     // runs through the game cycle of waiting then showing the choices
