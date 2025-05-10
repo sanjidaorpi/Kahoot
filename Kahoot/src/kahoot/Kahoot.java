@@ -134,6 +134,7 @@ class WaitingRoom extends JPanel {
         setBackground(p);
         
         JPanel top_panel = new JPanel();
+        
         top_panel.setLayout(new BoxLayout(top_panel, BoxLayout.PAGE_AXIS));
         top_panel.setPreferredSize(new Dimension(500, 10));
         top_panel.setOpaque(false);
@@ -143,58 +144,63 @@ class WaitingRoom extends JPanel {
         instruction.setFont(new Font("SansSerif", Font.BOLD, 25));
         instruction.setForeground(Color.WHITE);
         instruction.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Border inst_padding = BorderFactory.createEmptyBorder(50, 0, 0, 0);
+        instruction.setBorder(inst_padding);
         
-
-        JLabel game_pin = new JLabel("Game PIN: ", SwingConstants.CENTER);
+        JLabel game_pin = new JLabel("Game PIN: 1234", SwingConstants.CENTER);
         game_pin.setFont(new Font("SansSerif", Font.BOLD, 25));
         game_pin.setForeground(Color.WHITE);
         game_pin.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel pin = new JLabel("1234", SwingConstants.CENTER);
-        pin.setFont(new Font("SansSerif", Font.BOLD, 35));
-        pin.setForeground(Color.WHITE);
-        pin.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Border pin_padding = BorderFactory.createEmptyBorder(20, 0, 0, 0);
+        game_pin.setBorder(pin_padding);
         
         top_panel.add(instruction);
         top_panel.add(game_pin);
-        top_panel.add(pin);
         
         JLabel title = new JLabel("Kahoot!", SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.BOLD, 48));
+        title.setFont(new Font("SansSerif", Font.BOLD, 70));
         title.setForeground(Color.WHITE);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
 
         JPanel middle_panel = new JPanel();
-        middle_panel.setLayout(new BoxLayout(middle_panel, BoxLayout.X_AXIS));
+        middle_panel.setLayout(new BoxLayout(middle_panel, BoxLayout.Y_AXIS));
         middle_panel.setOpaque(false);
-
-        JButton start = new JButton("Start");
-        start.setSize(new Dimension(200, 200));
-        middle_panel.setPreferredSize(new Dimension(500, 100));
-        
-        start.setActionCommand("start");
-        start.addActionListener(new ButtonListener()); 
-        start.setFont(new Font("SansSerif", Font.BOLD, 28));
-        start.setAlignmentX(Component.CENTER_ALIGNMENT);
-        start.setAlignmentY(Component.CENTER_ALIGNMENT);
-        
-        middle_panel.add(title);
-        middle_panel.add(Box.createRigidArea(new Dimension(20, 0)));
-        middle_panel.add(start);
         
         JLabel message = new JLabel("Waiting for players...", SwingConstants.CENTER);
-        message.setOpaque(true);
-        message.setBackground(Color.decode("#25076b"));
-        message.setFont(new Font("SansSerif", Font.BOLD, 35));
-        message.setForeground(Color.WHITE);
+        //message.setOpaque(true);
+        //message.setBackground(Color.decode("#25076b"));
+        message.setFont(new Font("SansSerif", Font.BOLD, 25));
+        message.setForeground(Color.LIGHT_GRAY);
         message.setAlignmentX(Component.CENTER_ALIGNMENT);
         Border border = message.getBorder();
         Border margin = new EmptyBorder(10,10,10,10);
         message.setBorder(new CompoundBorder(border, margin));
+        Border mess_padding = BorderFactory.createEmptyBorder(50, 0, 50, 0);
+        message.setBorder(mess_padding);
         
+        JButton start = new JButton("Start");
+        start.setSize(new Dimension(200, 200));
+        middle_panel.setPreferredSize(new Dimension(500, 100));
+        start.setActionCommand("start");
+        start.addActionListener(new ButtonListener()); 
+        start.setFont(new Font("SansSerif", Font.BOLD, 40));
+        start.setAlignmentX(Component.CENTER_ALIGNMENT);
+        start.setAlignmentY(Component.CENTER_ALIGNMENT);
+        
+        middle_panel.add(message);
+        middle_panel.add(start);
+        
+        top_panel.add( Box.createVerticalGlue() );
+        middle_panel.add( Box.createVerticalGlue() );
+        message.add( Box.createVerticalGlue() );
+        
+        add(title);
         add(top_panel);
         add(middle_panel);
-        add(message);
         
+        Border padding = BorderFactory.createEmptyBorder(80, 0, 150, 0);
+        setBorder(padding);
     }
     
 }
@@ -211,7 +217,7 @@ class QuestionScreen extends JPanel {
         Border margin = new EmptyBorder(0,100,0,100);
         q_label.setBorder(new CompoundBorder(border, margin));
         
-        q_label.setFont(new Font("SansSerif", Font.BOLD, 45));
+        q_label.setFont(new Font("SansSerif", Font.BOLD, 35));
         q_label.setForeground(Color.WHITE);
         add(q_label, BorderLayout.CENTER);
     }
