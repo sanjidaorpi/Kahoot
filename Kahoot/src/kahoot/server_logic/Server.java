@@ -25,6 +25,8 @@ public class Server {
     static ArrayList<ProcessConnection> clients = new ArrayList<>();
     static QuestionSet questionSet = new QuestionSet();
     static int currentPhase = 0;
+    
+    static String lb;
 
     // leaderboard state
     // referenced for concurrency control with hashmaps:
@@ -32,6 +34,7 @@ public class Server {
     static Map<String, Integer> scores = Collections.synchronizedMap(new HashMap<>());
     static List<String> responderOrder = Collections.synchronizedList(new ArrayList<>());
     static boolean acceptingAnswers = false;
+    
 
     public static void main(String[] args) {
         try {
@@ -245,6 +248,10 @@ public class Server {
             }
         } catch (Exception ex) {
         }
+    }
+    
+    public static String getLeaderboard() {
+        return lb;
     }
 
     // runs through the game cycle of waiting then showing the choices
