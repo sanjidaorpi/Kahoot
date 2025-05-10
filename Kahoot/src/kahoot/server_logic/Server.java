@@ -122,7 +122,7 @@ public class Server {
                                 if (!responderOrder.contains(username)) {
                                     responderOrder.add(username);
                                     int place = responderOrder.size();
-                                    
+
                                     // 1st place 5pts, 2nd place 3pt, 3rd plce 1pt
                                     int pts = (place == 1) ? 5
                                             : (place == 2) ? 3
@@ -132,7 +132,7 @@ public class Server {
                                 }
                             }
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception ex) {
                     }
                     s.close();
                     continue;
@@ -153,7 +153,8 @@ public class Server {
                         } else if (currentPhase == 1) {
                             JSONArray choices = questionSet.getChoices();
 
-                            String html = """                                  
+                            // hidee iframe when answer is clicked, make sure it does not show
+                            String html = """    
                                 <iframe name="hiddenFrame" style="display:none;"></iframe>
                                 <style>
                                     .choice-button {
@@ -196,14 +197,14 @@ public class Server {
                         }
 
                     } else if (gameState.equals("end")) {
-                        
+
                         // show sorted leaderboard
                         String lb = "<h2>Game Over!</h2><h3>Leaderboard:</h3><ul>";
                         List<Map.Entry<String, Integer>> list = new ArrayList<>(scores.entrySet());
-                        
+
                         // sort the list of scores 
                         list.sort((a, b) -> b.getValue() - a.getValue());
-                        
+
                         // output the points
                         for (Map.Entry<String, Integer> e : list) {
                             // name: points format for scoreboard
@@ -217,20 +218,25 @@ public class Server {
 
                 // get the scores 
                 if (line.startsWith("GET") && line.contains("/scores")) {
-                    String lb = "<h2>Leaderboard:</h2><ul>";
+                    // show sorted leaderboard
+                    String lb = "<h2>Game Over!</h2><h3>Leaderboard:</h3><ul>";
                     List<Map.Entry<String, Integer>> list = new ArrayList<>(scores.entrySet());
+
+                    // sort the list of scores 
                     list.sort((a, b) -> b.getValue() - a.getValue());
+
+                    // output the points
                     for (Map.Entry<String, Integer> e : list) {
-                        lb += "<li>" + e.getKey() + ": " + e.getValue() + " pts</li>";
+                        // name: points format for scoreboard
+                        lb += "<ul>" + e.getKey() + ": " + e.getValue() + " pts</ul>";
                     }
                     lb += "</ul>";
                     sendHTML(sout, lb, false);
-                    s.close();
                     continue;
                 }
 
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
         }
     }
 
@@ -252,7 +258,7 @@ public class Server {
             }
             gameState = "end";
             System.out.println("Game finished.");
-        } catch (InterruptedException ignored) {
+        } catch (Exception ex) {
         }
     }
 
@@ -269,9 +275,7 @@ public class Server {
                 font-family: 'SansSerif', sans-serif;
                 font-weight: bold;
                 text-align: center;
-                padding: 50px;
-                margin: 0;
-            }
+                padding: 50px;            }
             h2, h3 {
                 font-size: 36px;
             }
@@ -279,19 +283,19 @@ public class Server {
                 padding: 10px;
                 font-size: 18px;
                 width: 250px;
-                margin: 10px 0;
+                margin: 10px;
             }
-            form input[type="submit"] {
-                padding: 12px 24px;
+            form input[type="submit"]{
+                padding: 8px 20px;
                 font-size: 20px;
                 background-color: #ffc00a;
                 color: #000;
                 font-weight: bold;
                 border: none;
                 cursor: pointer;
-                margin-top: 20px;
+                margin-top: 18px;
             }
-            .choice-button {
+            .choice-button{
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -304,8 +308,8 @@ public class Server {
             .grid-container {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                grid-gap: 10px;
-                padding: 10px;
+                grid-gap: 15px;
+                padding: 12px;
             }
                       
             ul{ 
@@ -335,6 +339,8 @@ public class Server {
         if (start == -1) {
             return "";
         }
+
+        //pin section
         int end = line.indexOf("&", start);
         if (end == -1) {
             end = line.indexOf(" ", start);
